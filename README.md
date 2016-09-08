@@ -1,5 +1,7 @@
 # JKHImageZoomTransition
-
+[![Platform](https://img.shields.io/cocoapods/p/JKHImageZoomTransition.svg?style=flat)](https://img.shields.io/cocoapods/p/JKHImageZoomTransition.svg)
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/JKHImageZoomTransition.svg?style=flat)](https://img.shields.io/cocoapods/v/JKHImageZoomTransition.svg)
+[![License](https://img.shields.io/cocoapods/l/JKHImageZoomTransition.svg?style=flat)](https://img.shields.io/cocoapods/l/JKHImageZoomTransition.svg)
 
 ## Overview
 
@@ -67,10 +69,6 @@ To use custom view controller transitions modally you must:
 
 ### 0.1.0
 - First pre-release.
-
-## Contribution
-
-If you have feature requests or bug reports, feel free to help out by sending pull requests or by creating new issues.
 
 ## Author
 
