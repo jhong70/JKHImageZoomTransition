@@ -26,8 +26,6 @@ s.source = { :git => "https://github.com/jhong70/JKHImageZoomTransition.git", :t
 s.framework = "UIKit"
 
 # 8
-s.source_files = "JKHImageZoomTransition/**/*.{swift}"
+s.source_files = "Pod/**/*.{swift}"
 
-# 9
-s.resources = "JKHImageZoomTransition/**/*.{png,jpeg,jpg,storyboard,xib}"
 end

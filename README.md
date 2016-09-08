@@ -26,6 +26,21 @@ The source is contained inside the ```Pod/Classes``` folder. Simply drag these c
 
 ## Usage
 
+### JKHImageZoomTransitionProtocol
+
+Your source and destination view controllers need to implement this protocol to facilitate the transition. The protocol is as follows:
+
+	optional func transitionFromImageView() -> UIImageView
+    optional func transitionToImageView() -> UIImageView
+    optional func transitionDidFinish(completed: Bool, finalImage: UIImage)
+    
+
+```transitionFromImageView``` is called to fetch the UIImageView from the source view controller
+
+```transitionToImageView``` is called to fetch the UIImageView from the destination view controller
+
+```transitionDidFinish``` is called when the view controller transition ends on the destination view controller
+
 ### UINavigationController
 
 To use custom view controller transitions inside a UINavigationController as opposed to the standard push and pull transitions, you must first set the navigation controller delegate in your UINavigationController. ```JKHNavigationControllerDelegate``` is conveniently provided to override the standard transitions.
