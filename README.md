@@ -5,7 +5,7 @@
 
 ## Overview
 
-JKHImageZoomTransition is a simple Swift 2.2 framework that allows you to add Apple-esque view controller transitions whether its presented within a UINavigationController stack or presented modally. 
+JKHImageZoomTransition is a simple Swift 3 framework that allows you to add Apple-esque view controller transitions whether its presented within a UINavigationController stack or presented modally.
 
 See the example below:
 
@@ -35,7 +35,7 @@ Your source and destination view controllers need to implement this protocol to 
 	optional func transitionFromImageView() -> UIImageView
     optional func transitionToImageView() -> UIImageView
     optional func transitionDidFinish(completed: Bool, finalImage: UIImage)
-    
+
 
 ```transitionFromImageView``` is called to fetch the UIImageView from the source view controller
 
@@ -63,9 +63,12 @@ To use custom view controller transitions modally you must:
 
 ## Requirements
 
-- iOS 8.0 or higher 
+- iOS 8.0 or higher
 
 ## Change Log
+
+### 0.2.0
+- Swift 3 support
 
 ### 0.1.0
 - First pre-release.
