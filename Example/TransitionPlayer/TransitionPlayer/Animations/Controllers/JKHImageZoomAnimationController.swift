@@ -9,26 +9,26 @@ import Foundation
 import UIKit
 
 @objc protocol JKHImageZoomTransitionProtocol {
-    optional func transitionFromImageView() -> UIImageView
-    optional func transitionToImageView() -> UIImageView
-    optional func transitionDidFinish(completed: Bool, finalImage: UIImage)
+    @objc optional func transitionFromImageView() -> UIImageView
+    @objc optional func transitionToImageView() -> UIImageView
+    @objc optional func transitionDidFinish(_ completed: Bool, finalImage: UIImage)
 }
 
 class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     
     enum JKHImageZoomType {
-        case In
-        case Out
+        case inward
+        case outward
     }
     
     var backgroundColor: UIColor
     var viewContentMode: UIViewContentMode
-    var duration: NSTimeInterval
+    var duration: TimeInterval
     var springVelocity: CGFloat
     var springDamping: CGFloat
     var type: JKHImageZoomType
     
-    init(type: JKHImageZoomType, backgroundColor: UIColor = UIColor.whiteColor(), viewContentMode: UIViewContentMode = .ScaleAspectFill, duration: NSTimeInterval = 0.5, springVelocity: CGFloat = 1.5, springDamping: CGFloat = 1.0) {
+    init(type: JKHImageZoomType, backgroundColor: UIColor = UIColor.white, viewContentMode: UIViewContentMode = .scaleAspectFill, duration: TimeInterval = 0.5, springVelocity: CGFloat = 1.5, springDamping: CGFloat = 1.0) {
         self.backgroundColor = backgroundColor
         self.viewContentMode = viewContentMode
         self.duration = duration
@@ -37,16 +37,16 @@ class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransit
         self.type = type
     }
     
-    func transitionDuration(transitionContext: UIViewControllerContextTransitioning?) -> NSTimeInterval {
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
     }
     
-    func animateTransition(transitionContext: UIViewControllerContextTransitioning) {
-        guard var toVC = transitionContext.viewControllerForKey(UITransitionContextToViewControllerKey),
-            var fromVC = transitionContext.viewControllerForKey(UITransitionContextFromViewControllerKey),
-            let toView = transitionContext.viewForKey(UITransitionContextToViewKey),
-            let fromView = transitionContext.viewForKey(UITransitionContextFromViewKey),
-            let containerView = transitionContext.containerView() else {
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        let containerView = transitionContext.containerView
+        guard var toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to),
+            var fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from),
+            let toView = transitionContext.view(forKey: UITransitionContextViewKey.to),
+            let fromView = transitionContext.view(forKey: UITransitionContextViewKey.from) else {
                 return
         }
         
@@ -64,28 +64,30 @@ class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransit
             toVC = (toVC as! UITabBarController).selectedViewController!
         }
         
-        let fromVCSnapshot = fromView.snapshotViewAfterScreenUpdates(false)
+        guard let fromVCSnapshot = fromView.snapshotView(afterScreenUpdates: false) else {
+            return
+        }
         
         containerView.backgroundColor = backgroundColor
         containerView.addSubview(toView)
         containerView.addSubview(fromVCSnapshot)
         
-        fromView.hidden = true
+        fromView.isHidden = true
         toView.setNeedsLayout()
         toView.layoutIfNeeded()
         
         let fromImageView = (fromVC as! JKHImageZoomTransitionProtocol).transitionFromImageView!()
         let fromImageViewCopy = UIImageView(image: fromImageView.image)
         let toImageView = (toVC as! JKHImageZoomTransitionProtocol).transitionToImageView!()
-        let toImageViewFrame = containerView.convertRect(toImageView.frame, fromView: toImageView.superview)
+        let toImageViewFrame = containerView.convert(toImageView.frame, from: toImageView.superview)
         
         fromImageViewCopy.contentMode = viewContentMode
         fromImageViewCopy.clipsToBounds = true
-        fromImageViewCopy.frame = containerView.convertRect(fromImageView.frame, fromView: fromImageView.superview)
+        fromImageViewCopy.frame = containerView.convert(fromImageView.frame, from: fromImageView.superview)
         
         containerView.addSubview(fromImageViewCopy)
         
-        fromVCSnapshot.layer.anchorPoint = CGPointMake(fromImageViewCopy.center.x/containerView.frame.size.width, fromImageViewCopy.center.y/containerView.frame.size.height)
+        fromVCSnapshot.layer.anchorPoint = CGPoint(x: fromImageViewCopy.center.x/containerView.frame.size.width, y: fromImageViewCopy.center.y/containerView.frame.size.height)
         fromVCSnapshot.layer.position = fromImageViewCopy.center
 
 //        toView.layer.anchorPoint = CGPointMake(toImageView.center.x/containerView.frame.size.width, toImageView.center.y/containerView.frame.size.height)
@@ -95,29 +97,29 @@ class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransit
         
         toView.transform = transforms.to
 
-        UIView.animateWithDuration(transitionDuration(transitionContext), delay: 0, usingSpringWithDamping: springDamping, initialSpringVelocity: springVelocity, options: .CurveLinear, animations: {
+        UIView.animate(withDuration: transitionDuration(using: transitionContext), delay: 0, usingSpringWithDamping: springDamping, initialSpringVelocity: springVelocity, options: .curveLinear, animations: {
             fromImageViewCopy.frame = toImageViewFrame
             fromVCSnapshot.alpha = 0
             fromVCSnapshot.transform = transforms.from
-            toView.transform = CGAffineTransformIdentity
+            toView.transform = CGAffineTransform.identity
         }) { (completed) in
             if completed {
                 toView.layer.position = toView.center
-                fromView.hidden = false
+                fromView.isHidden = false
                 fromImageViewCopy.removeFromSuperview()
                 fromVCSnapshot.removeFromSuperview()
                 (toVC as! JKHImageZoomTransitionProtocol).transitionDidFinish?(true, finalImage: fromImageViewCopy.image!)
-                transitionContext.completeTransition(!transitionContext.transitionWasCancelled())
+                transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
             } else {
                 (toVC as! JKHImageZoomTransitionProtocol).transitionDidFinish?(false, finalImage: fromImageViewCopy.image!)
             }
         }
     }
     
-    private func transformsForZoom(type: JKHImageZoomType, toFrame: CGRect, fromFrame: CGRect) -> (from: CGAffineTransform, to: CGAffineTransform) {
-        let fromFrameAspectRatio = CGRectGetWidth(fromFrame) / CGRectGetHeight(fromFrame)
-        let toFrameCenter = CGPointMake(CGRectGetMidX(toFrame), CGRectGetMidY(toFrame))
-        let fromFrameCenter = CGPointMake(CGRectGetMidX(fromFrame), CGRectGetMidY(fromFrame))
+    fileprivate func transformsForZoom(_ type: JKHImageZoomType, toFrame: CGRect, fromFrame: CGRect) -> (from: CGAffineTransform, to: CGAffineTransform) {
+        let fromFrameAspectRatio = fromFrame.width / fromFrame.height
+        let toFrameCenter = CGPoint(x: toFrame.midX, y: toFrame.midY)
+        let fromFrameCenter = CGPoint(x: fromFrame.midX, y: fromFrame.midY)
         
         // From Transform
         let transScaleX = (toFrame.size.height * fromFrameAspectRatio) / fromFrame.size.width
@@ -125,17 +127,17 @@ class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransit
         let fromTransPanY = (toFrameCenter.y - fromFrameCenter.y) / transScaleY
         let fromTransPanX = (toFrameCenter.x - fromFrameCenter.x) / transScaleX
         
-        let fromTransScale = CGAffineTransformMakeScale(transScaleX, transScaleY)
-        let fromTransPan = CGAffineTransformMakeTranslation(fromTransPanX, fromTransPanY)
-        let fromTransform = CGAffineTransformConcat(fromTransPan, fromTransScale)
+        let fromTransScale = CGAffineTransform(scaleX: transScaleX, y: transScaleY)
+        let fromTransPan = CGAffineTransform(translationX: fromTransPanX, y: fromTransPanY)
+        let fromTransform = fromTransPan.concatenating(fromTransScale)
         
         // To Transform
-        let toTransPanY = (fromFrameCenter.y - toFrameCenter.y) * (type == .In ? transScaleY : 1)
-        let toTransPanX = (fromFrameCenter.x - toFrameCenter.x) * (type == .In ? transScaleX : 1)
+        let toTransPanY = (fromFrameCenter.y - toFrameCenter.y) * (type == .inward ? transScaleY : 1)
+        let toTransPanX = (fromFrameCenter.x - toFrameCenter.x) * (type == .inward ? transScaleX : 1)
     
-        let toTransScale = CGAffineTransformMakeScale(1 / transScaleX, 1 / transScaleY)
-        let toTransPan = CGAffineTransformMakeTranslation(toTransPanX, toTransPanY)
-        let toTransform = CGAffineTransformConcat(toTransPan, toTransScale)
+        let toTransScale = CGAffineTransform(scaleX: 1 / transScaleX, y: 1 / transScaleY)
+        let toTransPan = CGAffineTransform(translationX: toTransPanX, y: toTransPanY)
+        let toTransform = toTransPan.concatenating(toTransScale)
         
         return (fromTransform, toTransform)
     }

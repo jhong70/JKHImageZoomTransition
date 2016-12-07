@@ -10,14 +10,14 @@ import UIKit
 
 class JKHNavigationControllerDelegate: NSObject, UINavigationControllerDelegate {
     
-    func navigationController(navigationController: UINavigationController, animationControllerForOperation operation: UINavigationControllerOperation, fromViewController fromVC: UIViewController, toViewController toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationControllerOperation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         
-        if let _ = toVC as? JKHImageZoomTransitionProtocol, _ = fromVC as? JKHImageZoomTransitionProtocol {
-            if operation == .Push {
-                return JKHImageZoomAnimationController(type: .In)
+        if let _ = toVC as? JKHImageZoomTransitionProtocol, let _ = fromVC as? JKHImageZoomTransitionProtocol {
+            if operation == .push {
+                return JKHImageZoomAnimationController(type: .inward)
             }
             
-            return JKHImageZoomAnimationController(type: .Out)
+            return JKHImageZoomAnimationController(type: .outward)
         }
         
        

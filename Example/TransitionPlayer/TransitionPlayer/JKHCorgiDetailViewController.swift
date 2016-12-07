@@ -40,18 +40,18 @@ class JKHCorgiDetailViewController: UIViewController {
         view.layoutIfNeeded()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        closeButton.hidden = !isModal
-        closeButton.userInteractionEnabled = isModal
-        closeButton.layer.borderColor = UIColor.whiteColor().CGColor
+        closeButton.isHidden = !isModal
+        closeButton.isUserInteractionEnabled = isModal
+        closeButton.layer.borderColor = UIColor.white.cgColor
         closeButton.layer.cornerRadius = closeButton.frame.width / 2.0
         closeButton.layer.borderWidth = 2.0
     }
     
-    override func willMoveToParentViewController(parent: UIViewController?) {
-        super.willMoveToParentViewController(parent)
+    override func willMove(toParentViewController parent: UIViewController?) {
+        super.willMove(toParentViewController: parent)
         
     }
 
@@ -62,8 +62,8 @@ class JKHCorgiDetailViewController: UIViewController {
     
     // MARK: - Actions
     
-    @IBAction func closeButtonTapped(sender: UIButton) {
-        dismissViewControllerAnimated(true, completion: nil)
+    @IBAction func closeButtonTapped(_ sender: UIButton) {
+        dismiss(animated: true, completion: nil)
     }
 
 }
@@ -73,16 +73,16 @@ class JKHCorgiDetailViewController: UIViewController {
 extension JKHCorgiDetailViewController: JKHImageZoomTransitionProtocol {
     
     func transitionFromImageView() -> UIImageView {
-        imageView.hidden = true
+        imageView.isHidden = true
         return imageView
     }
 
     func transitionToImageView() -> UIImageView {
-        imageView.hidden = true
+        imageView.isHidden = true
         return imageView
     }
     
-    func transitionDidFinish(completed: Bool, finalImage: UIImage) {
-        imageView.hidden = !completed
+    func transitionDidFinish(_ completed: Bool, finalImage: UIImage) {
+        imageView.isHidden = !completed
     }
 }

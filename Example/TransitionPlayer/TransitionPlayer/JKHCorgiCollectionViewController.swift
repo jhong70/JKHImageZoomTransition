@@ -37,36 +37,36 @@ class JKHCorgiCollectionViewController: UICollectionViewController {
     
     // MARK: - Navigation
 
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let vc = segue.destinationViewController as! JKHCorgiDetailViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let vc = segue.destination as! JKHCorgiDetailViewController
         
         vc.image = selectedCorgiCell?.imageView.image
         vc.transitioningDelegate = self
     }
     
-    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         collectionView?.collectionViewLayout.invalidateLayout()
     }
  
 
     // MARK: UICollectionViewDataSource
     
-    override func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
-        return collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "JKHCorgiCollectionViewHeader", forIndexPath: indexPath)
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "JKHCorgiCollectionViewHeader", for: indexPath)
     }
     
 
-    override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
 
 
-    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return corgiImages.count
     }
 
-    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath) as! JKHCorgiCollectionViewCell
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! JKHCorgiCollectionViewCell
     
         // Configure the cell
         cell.imageView.image = corgiImages[indexPath.row]
@@ -74,42 +74,42 @@ class JKHCorgiCollectionViewController: UICollectionViewController {
         return cell
     }
     
-    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        guard let indexPaths = collectionView.indexPathsForSelectedItems(), first = indexPaths.first else {
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let indexPaths = collectionView.indexPathsForSelectedItems, let first = indexPaths.first else {
             return
         }
         
-        selectedCorgiCell = collectionView.cellForItemAtIndexPath(first) as? JKHCorgiCollectionViewCell
-        performSegueWithIdentifier("CorgiDetailModalSegue", sender: self)
+        selectedCorgiCell = collectionView.cellForItem(at: first) as? JKHCorgiCollectionViewCell
+        performSegue(withIdentifier: "CorgiDetailModalSegue", sender: self)
     }
 }
 
 extension JKHCorgiCollectionViewController: UICollectionViewDelegateFlowLayout {
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        let screenWidth = UIScreen.mainScreen().bounds.width - cellPadding
+        let screenWidth = UIScreen.main.bounds.width - cellPadding
         
-        return CGSizeMake(screenWidth/2.0, screenWidth/2.0)
+        return CGSize(width: screenWidth/2.0, height: screenWidth/2.0)
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets {
-        return UIEdgeInsetsZero
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets.zero
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAtIndex section: Int) -> CGFloat {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 1
     }
 
 }
 
 extension JKHCorgiCollectionViewController: UIViewControllerTransitioningDelegate {
-    func animationControllerForPresentedController(presented: UIViewController, presentingController presenting: UIViewController, sourceController source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return JKHImageZoomAnimationController(type: .In)
+    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return JKHImageZoomAnimationController(type: .inward)
     }
     
-    func animationControllerForDismissedController(dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return JKHImageZoomAnimationController(type: .Out)
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        return JKHImageZoomAnimationController(type: .outward)
     }
 }
 
@@ -119,9 +119,9 @@ extension JKHCorgiCollectionViewController: JKHImageZoomTransitionProtocol {
         
         let imageView = selectedCorgiCell!.imageView
         
-        imageView.hidden = true
+        imageView?.isHidden = true
         
-        return imageView
+        return imageView!
         
     }
     
@@ -129,18 +129,18 @@ extension JKHCorgiCollectionViewController: JKHImageZoomTransitionProtocol {
         
         let imageView = selectedCorgiCell!.imageView
         
-        imageView.hidden = true
+        imageView?.isHidden = true
         
-        return imageView
+        return imageView!
         
     }
     
-    func transitionDidFinish(completed: Bool, finalImage: UIImage) {
+    func transitionDidFinish(_ completed: Bool, finalImage: UIImage) {
         
         if completed {
             let imageView = selectedCorgiCell!.imageView
             
-            imageView.hidden = false
+            imageView?.isHidden = false
         }
         
     }
