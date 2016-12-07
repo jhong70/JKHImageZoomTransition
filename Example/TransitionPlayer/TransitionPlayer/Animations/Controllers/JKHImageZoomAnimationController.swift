@@ -43,6 +43,8 @@ class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransit
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         let containerView = transitionContext.containerView
+        var tabBar: UITabBar?
+        
         guard var toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to),
             var fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from),
             let toView = transitionContext.view(forKey: UITransitionContextViewKey.to),
@@ -61,6 +63,8 @@ class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransit
             fromVC = (fromVC as! UITabBarController).selectedViewController!
         }
         if toVC is UITabBarController {
+            tabBar = (toVC as! UITabBarController).tabBar
+            tabBar!.transform = CGAffineTransform(translationX: 0, y: tabBar!.frame.origin.y)
             toVC = (toVC as! UITabBarController).selectedViewController!
         }
         
@@ -102,6 +106,7 @@ class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransit
             fromVCSnapshot.alpha = 0
             fromVCSnapshot.transform = transforms.from
             toView.transform = CGAffineTransform.identity
+            tabBar?.transform = CGAffineTransform.identity
         }) { (completed) in
             if completed {
                 toView.layer.position = toView.center
