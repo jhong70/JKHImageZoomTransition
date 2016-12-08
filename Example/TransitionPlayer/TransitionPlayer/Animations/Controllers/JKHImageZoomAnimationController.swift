@@ -94,31 +94,36 @@ class JKHImageZoomAnimationController: NSObject, UIViewControllerAnimatedTransit
         fromVCSnapshot.layer.anchorPoint = CGPoint(x: fromImageViewCopy.center.x/containerView.frame.size.width, y: fromImageViewCopy.center.y/containerView.frame.size.height)
         fromVCSnapshot.layer.position = fromImageViewCopy.center
 
-//        toView.layer.anchorPoint = CGPointMake(toImageView.center.x/containerView.frame.size.width, toImageView.center.y/containerView.frame.size.height)
-//        toView.layer.position = toImageView.center
-    
         let transforms = transformsForZoom(type, toFrame: toImageViewFrame, fromFrame: fromImageViewCopy.frame)
         
         toView.transform = transforms.to
 
-        UIView.animate(withDuration: transitionDuration(using: transitionContext), delay: 0, usingSpringWithDamping: springDamping, initialSpringVelocity: springVelocity, options: .curveLinear, animations: {
+        self.animate(withTransitionContext: transitionContext, animations: {
             fromImageViewCopy.frame = toImageViewFrame
             fromVCSnapshot.alpha = 0
             fromVCSnapshot.transform = transforms.from
             toView.transform = CGAffineTransform.identity
-            tabBar?.transform = CGAffineTransform.identity
         }) { (completed) in
-            if completed {
-                toView.layer.position = toView.center
-                fromView.isHidden = false
-                fromImageViewCopy.removeFromSuperview()
-                fromVCSnapshot.removeFromSuperview()
-                (toVC as! JKHImageZoomTransitionProtocol).transitionDidFinish?(true, finalImage: fromImageViewCopy.image!)
-                transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
-            } else {
-                (toVC as! JKHImageZoomTransitionProtocol).transitionDidFinish?(false, finalImage: fromImageViewCopy.image!)
+            toView.layer.position = toView.center
+            fromView.isHidden = false
+            fromImageViewCopy.removeFromSuperview()
+            fromVCSnapshot.removeFromSuperview()
+            
+            if tabBar != nil { // Animate the tab bar after animation
+                self.animate(withTransitionContext: transitionContext, animations: {
+                    tabBar?.transform = CGAffineTransform.identity
+                }, completion: nil)
             }
+            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+            
+            (toVC as! JKHImageZoomTransitionProtocol).transitionDidFinish?(true, finalImage: fromImageViewCopy.image!)
         }
+    }
+    
+    fileprivate func animate(withTransitionContext context: UIViewControllerContextTransitioning?, animations: @escaping () -> Swift.Void, completion: ((Bool) -> Swift.Void)? = nil) {
+        
+        UIView.animate(withDuration: self.transitionDuration(using: context), delay: 0, usingSpringWithDamping: self.springDamping, initialSpringVelocity: self.springVelocity, options: .curveLinear, animations: animations, completion: completion)
+
     }
     
     fileprivate func transformsForZoom(_ type: JKHImageZoomType, toFrame: CGRect, fromFrame: CGRect) -> (from: CGAffineTransform, to: CGAffineTransform) {
