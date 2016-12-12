@@ -67,6 +67,9 @@ To use custom view controller transitions modally you must:
 
 ## Change Log
 
+### 0.2.2
+- Transform for destination view controller now calculated correctly
+
 ### 0.2.1
 - TabBars now animate independently when transitioning to UITabBarControllers
 
